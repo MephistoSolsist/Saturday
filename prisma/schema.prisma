@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model client {
+  client_id    BigInt   @id @default(autoincrement())
+  openid       String?  @db.Char(28)
+  gmt_create   DateTime @db.DateTime(0)
+  gmt_modified DateTime @db.DateTime(0)
+  event        event[]
+}
+
+model event {
+  client_id                      BigInt
+  event_id                       BigInt                        @id @default(autoincrement())
+  model                          String?                       @db.VarChar(40)
+  phone                          String                        @db.VarChar(11)
+  qq                             String?                       @db.VarChar(20)
+  contact_preference             String                        @default("qq") @db.VarChar(20)
+  event_description              String?                       @db.VarChar(500)
+  repair_description             String?                       @db.VarChar(1000)
+  member_id                      String?                       @db.Char(10)
+  closed_by                      String?                       @db.Char(10)
+  gmt_create                     DateTime                      @db.DateTime(0)
+  gmt_modified                   DateTime                      @db.DateTime(0)
+  client                         client                        @relation(fields: [client_id], references: [client_id], onUpdate: Restrict, map: "event_ibfk_2")
+  member_event_closed_byTomember member?                       @relation("event_closed_byTomember", fields: [closed_by], references: [member_id], onDelete: Restrict, onUpdate: Restrict, map: "event_ibfk_1")
+  member_event_member_idTomember member?                       @relation("event_member_idTomember", fields: [member_id], references: [member_id], onDelete: Restrict, onUpdate: Restrict, map: "fk_Event_repairElements_1")
+  event_event_status_relation    event_event_status_relation[]
+  event_log                      event_log[]
+
+  @@index([closed_by], map: "fk_Event_Admin_2")
+  @@index([client_id], map: "fk_Event_User_1")
+  @@index([member_id], map: "fk_Event_repairElements_1")
+}
+
+model event_action {
+  event_action_id       Int                     @id @db.TinyInt
+  action                String?                 @db.VarChar(30)
+  event_action_relation event_action_relation[]
+}
+
+model event_action_relation {
+  event_log_id    BigInt       @default(autoincrement())
+  event_action_id Int          @db.TinyInt
+  event_action    event_action @relation(fields: [event_action_id], references: [event_action_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_action_relation_event_action_1")
+  event_log       event_log    @relation(fields: [event_log_id], references: [event_log_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_action_relation_event_log_1")
+
+  @@id([event_log_id, event_action_id])
+  @@index([event_action_id], map: "fk_event_action_relation_event_action_1")
+}
+
+model event_event_status_relation {
+  event_status_id Int          @db.TinyInt
+  event_id        BigInt       @default(autoincrement())
+  event           event        @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_event_status_relation_event_1")
+  event_status    event_status @relation(fields: [event_status_id], references: [event_status_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_event_status_relation_event_status_1")
+
+  @@id([event_status_id, event_id])
+  @@index([event_id], map: "fk_event_event_status_relation_event_1")
+}
+
+model event_log {
+  event_log_id          BigInt                  @id @default(autoincrement())
+  event_id              BigInt
+  description           String?                 @db.VarChar(255)
+  gmt_create            DateTime                @db.DateTime(0)
+  member_id             String?                 @db.Char(10)
+  event                 event                   @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_log_event_1")
+  member                member?                 @relation(fields: [member_id], references: [member_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_log_element_1")
+  event_action_relation event_action_relation[]
+
+  @@index([member_id], map: "fk_event_log_element_1")
+  @@index([event_id], map: "fk_event_log_event_1")
+}
+
+model event_status {
+  event_status_id             Int                           @id @db.TinyInt
+  status                      String?                       @db.VarChar(255)
+  event_event_status_relation event_event_status_relation[]
+}
+
+model member {
+  member_id                     String                 @id @db.Char(10)
+  alias                         String?                @db.VarChar(50)
+  password                      String?                @db.VarChar(50)
+  name                          String?                @db.VarChar(20)
+  section                       String?                @db.VarChar(20)
+  profile                       String?                @db.VarChar(1000)
+  phone                         String?                @db.VarChar(11)
+  qq                            String?                @db.VarChar(20)
+  avatar                        String?                @db.VarChar(255)
+  created_by                    String?                @db.Char(10)
+  gmt_create                    DateTime               @db.DateTime(0)
+  gmt_modified                  DateTime               @db.DateTime(0)
+  event_event_closed_byTomember event[]                @relation("event_closed_byTomember")
+  event_event_member_idTomember event[]                @relation("event_member_idTomember")
+  event_log                     event_log[]
+  member_role_relation          member_role_relation[]
+}
+
+model member_role_relation {
+  member_id String @db.VarChar(10)
+  role_id   Int    @db.TinyInt
+  member    member @relation(fields: [member_id], references: [member_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_member_role_member_1")
+  role      role   @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_member_role_role_1")
+
+  @@id([member_id, role_id])
+  @@index([role_id], map: "fk_member_role_role_1")
+}
+
+model role {
+  role_id              Int                    @id @db.TinyInt
+  role                 String                 @db.VarChar(255)
+  member_role_relation member_role_relation[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model setting {
+  setting String? @db.VarChar(10000)
+
+  @@ignore
+}
+
+model status {
+  status_id Int    @id @db.TinyInt
+  status    String @db.VarChar(255)
+}
