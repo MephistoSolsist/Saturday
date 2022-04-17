@@ -9,7 +9,7 @@ datasource db {
 
 model client {
   client_id    BigInt   @id @default(autoincrement())
-  openid       String?  @db.Char(28)
+  openid       String?  @default("") @db.Char(28)
   gmt_create   DateTime @db.DateTime(0)
   gmt_modified DateTime @db.DateTime(0)
   event        event[]
@@ -18,12 +18,12 @@ model client {
 model event {
   client_id                      BigInt
   event_id                       BigInt                        @id @default(autoincrement())
-  model                          String?                       @db.VarChar(40)
-  phone                          String                        @db.VarChar(11)
-  qq                             String?                       @db.VarChar(20)
+  model                          String?                       @default("") @db.VarChar(40)
+  phone                          String                        @default("") @db.VarChar(11)
+  qq                             String?                       @default("") @db.VarChar(20)
   contact_preference             String                        @default("qq") @db.VarChar(20)
-  event_description              String?                       @db.VarChar(500)
-  repair_description             String?                       @db.VarChar(1000)
+  event_description              String?                       @default("") @db.VarChar(500)
+  repair_description             String?                       @default("") @db.VarChar(1000)
   member_id                      String?                       @db.Char(10)
   closed_by                      String?                       @db.Char(10)
   gmt_create                     DateTime                      @db.DateTime(0)
@@ -41,7 +41,7 @@ model event {
 
 model event_action {
   event_action_id       Int                     @id @db.TinyInt
-  action                String?                 @db.VarChar(30)
+  action                String                  @default("") @db.VarChar(30)
   event_action_relation event_action_relation[]
 }
 
@@ -57,7 +57,7 @@ model event_action_relation {
 
 model event_event_status_relation {
   event_status_id Int          @db.TinyInt
-  event_id        BigInt       @default(autoincrement())
+  event_id        BigInt
   event           event        @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_event_status_relation_event_1")
   event_status    event_status @relation(fields: [event_status_id], references: [event_status_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_event_status_relation_event_status_1")
 
@@ -68,7 +68,7 @@ model event_event_status_relation {
 model event_log {
   event_log_id          BigInt                  @id @default(autoincrement())
   event_id              BigInt
-  description           String?                 @db.VarChar(255)
+  description           String?                 @default("") @db.VarChar(255)
   gmt_create            DateTime                @db.DateTime(0)
   member_id             String?                 @db.Char(10)
   event                 event                   @relation(fields: [event_id], references: [event_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event_log_event_1")
@@ -81,20 +81,20 @@ model event_log {
 
 model event_status {
   event_status_id             Int                           @id @db.TinyInt
-  status                      String?                       @db.VarChar(255)
+  status                      String                        @default("") @db.VarChar(255)
   event_event_status_relation event_event_status_relation[]
 }
 
 model member {
   member_id                     String                 @id @db.Char(10)
-  alias                         String?                @db.VarChar(50)
-  password                      String?                @db.VarChar(50)
-  name                          String?                @db.VarChar(20)
-  section                       String?                @db.VarChar(20)
-  profile                       String?                @db.VarChar(1000)
-  phone                         String?                @db.VarChar(11)
-  qq                            String?                @db.VarChar(20)
-  avatar                        String?                @db.VarChar(255)
+  alias                         String?                @default("") @db.VarChar(50)
+  password                      String?                @default("") @db.VarChar(50)
+  name                          String?                @default("") @db.VarChar(20)
+  section                       String?                @default("") @db.VarChar(20)
+  profile                       String?                @default("") @db.VarChar(1000)
+  phone                         String?                @default("") @db.VarChar(11)
+  qq                            String?                @default("") @db.VarChar(20)
+  avatar                        String?                @default("") @db.VarChar(255)
   created_by                    String?                @db.Char(10)
   gmt_create                    DateTime               @db.DateTime(0)
   gmt_modified                  DateTime               @db.DateTime(0)
@@ -116,13 +116,13 @@ model member_role_relation {
 
 model role {
   role_id              Int                    @id @db.TinyInt
-  role                 String                 @db.VarChar(255)
+  role                 String                 @default("") @db.VarChar(255)
   member_role_relation member_role_relation[]
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
 model setting {
-  setting String? @db.VarChar(10000)
+  setting String? @default("") @db.VarChar(10000)
 
   @@ignore
 }

@@ -11,7 +11,7 @@
  Target Server Version : 80022
  File Encoding         : 65001
 
- Date: 17/04/2022 15:42:35
+ Date: 17/04/2022 21:11:02
 */
 
 SET NAMES utf8mb4;
@@ -23,7 +23,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `client`;
 CREATE TABLE `client` (
   `client_id` bigint NOT NULL AUTO_INCREMENT,
-  `openid` char(28) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '微信',
+  `openid` char(28) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '微信',
   `gmt_create` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   `gmt_modified` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`client_id`) USING BTREE
@@ -42,12 +42,12 @@ DROP TABLE IF EXISTS `event`;
 CREATE TABLE `event` (
   `client_id` bigint NOT NULL,
   `event_id` bigint NOT NULL AUTO_INCREMENT,
-  `model` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '型号',
-  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `qq` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
+  `model` varchar(40) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '型号',
+  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+  `qq` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
   `contact_preference` varchar(20) NOT NULL DEFAULT 'qq' COMMENT '联系偏好',
-  `event_description` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '事件（用户）描述',
-  `repair_description` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '维修描述',
+  `event_description` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '事件（用户）描述',
+  `repair_description` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '维修描述',
   `member_id` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '最后由谁维修',
   `closed_by` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '由谁关闭',
   `gmt_create` datetime NOT NULL,
@@ -73,7 +73,7 @@ COMMIT;
 DROP TABLE IF EXISTS `event_action`;
 CREATE TABLE `event_action` (
   `event_action_id` tinyint NOT NULL,
-  `action` varchar(30) DEFAULT NULL,
+  `action` varchar(30) NOT NULL DEFAULT '',
   PRIMARY KEY (`event_action_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -108,7 +108,7 @@ COMMIT;
 DROP TABLE IF EXISTS `event_event_status_relation`;
 CREATE TABLE `event_event_status_relation` (
   `event_status_id` tinyint NOT NULL,
-  `event_id` bigint NOT NULL AUTO_INCREMENT,
+  `event_id` bigint NOT NULL,
   PRIMARY KEY (`event_status_id`,`event_id`),
   KEY `fk_event_event_status_relation_event_1` (`event_id`),
   CONSTRAINT `fk_event_event_status_relation_event_1` FOREIGN KEY (`event_id`) REFERENCES `event` (`event_id`),
@@ -128,7 +128,7 @@ DROP TABLE IF EXISTS `event_log`;
 CREATE TABLE `event_log` (
   `event_log_id` bigint NOT NULL AUTO_INCREMENT,
   `event_id` bigint NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT '',
   `gmt_create` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   `member_id` char(10) DEFAULT NULL,
   PRIMARY KEY (`event_log_id`),
@@ -150,7 +150,7 @@ COMMIT;
 DROP TABLE IF EXISTS `event_status`;
 CREATE TABLE `event_status` (
   `event_status_id` tinyint NOT NULL,
-  `status` varchar(255) DEFAULT NULL,
+  `status` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`event_status_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -166,14 +166,14 @@ COMMIT;
 DROP TABLE IF EXISTS `member`;
 CREATE TABLE `member` (
   `member_id` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `alias` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '昵称',
-  `password` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `section` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '班级（计算机196）',
-  `profile` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '个人简介',
-  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `qq` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL,
-  `avatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '头像地址',
+  `alias` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '昵称',
+  `password` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
+  `name` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
+  `section` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '班级（计算机196）',
+  `profile` varchar(1000) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '个人简介',
+  `phone` varchar(11) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
+  `qq` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '',
+  `avatar` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '' COMMENT '头像地址',
   `created_by` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '由谁添加',
   `gmt_create` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
   `gmt_modified` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP,
@@ -184,7 +184,7 @@ CREATE TABLE `member` (
 -- Records of member
 -- ----------------------------
 BEGIN;
-INSERT INTO `member` VALUES ('2333333333', '滑稽', '123456', '滑稽', '计算机233', NULL, NULL, NULL, NULL, NULL, '2022-04-17 15:40:18', '2022-04-17 15:40:20');
+INSERT INTO `member` VALUES ('2333333333', '滑稽', '123456', '滑稽', '计算机233', '', '', '', '', NULL, '2022-04-17 21:10:15', '2022-04-17 21:10:16');
 COMMIT;
 
 -- ----------------------------
@@ -213,7 +213,7 @@ COMMIT;
 DROP TABLE IF EXISTS `role`;
 CREATE TABLE `role` (
   `role_id` tinyint NOT NULL,
-  `role` varchar(255) NOT NULL,
+  `role` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`role_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -230,7 +230,7 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `setting`;
 CREATE TABLE `setting` (
-  `setting` varchar(10000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL
+  `setting` varchar(10000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
