@@ -4,7 +4,7 @@ import Members from "../client/member-client"
 
 class MemberService {
   private readonly prisma = new PrismaClient()
-  private readonly members = Members(this.prisma.member)
+  private readonly members = new Members(this.prisma.member).g
 
   async getMember(member_id: string) {
     return await this.members.getMemberById(member_id)
